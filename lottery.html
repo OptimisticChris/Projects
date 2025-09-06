@@ -1,0 +1,98 @@
+<script>
+    alert("Welcome to the Lottery Game!" + 
+    "\n\nThe computer will randomly select three numbers between 1 and 10." +
+     "\nYour goal is to guess the three numbers!" + 
+     "\n\nOne match wins you $100" + 
+     "\nTwo matches wins you $200" +
+     "\nThree matches wins you $500");
+
+    
+
+   
+    do{
+        var yourGuess = [];
+        var computerGuess = [];
+        var guessOne;
+        var verfiyOne = false;
+        var guessTwo;
+        var verfiyTwo = false;
+        var guessThree;
+        var verfiyThree = false;
+        var loss = false;
+        var compNumOne;
+        var compNumTwo;
+        var compNumThree;
+        var numCorrect = 0;
+        var message = "";
+        var x;
+        var cashLog = 0;
+        var tryAgain;
+
+        guessOne = parseInt(prompt("Guess a number between 1 and 10."));
+                while(guessOne < 1 || guessOne > 10 || isNaN(guessOne)){
+                    guessOne = parseInt(prompt("Invalid entry, Please guess a number between 1 and 10."));
+                }
+                    console.log(guessOne)
+                    yourGuess.push(guessOne);
+        guessTwo = parseInt(prompt("Guess a second number between 1 and 10"));
+                while(guessTwo <1 || guessTwo >10 || isNaN(guessTwo)){
+                    guessTwo = parseInt(prompt("Invalid entry, Please guess a second number between 1 and 10."));
+                }
+                    console.log(guessTwo)
+                    yourGuess.push(guessTwo);
+        guessThree = parseInt(prompt("Guess a third number between 1 and 10"));
+                while(guessThree <1 || guessThree >10 || isNaN(guessThree)){
+                    guessThree = parseInt(prompt("Invalid entry, Please guess a third number between 1 and 10."));
+                }
+                    console.log(guessThree)
+                    yourGuess.push(guessThree);
+
+        
+        compNumOne = Math.floor(Math.random()*10)+1;
+                console.log(compNumOne);
+                computerGuess.push(compNumOne);
+        compNumTwo = Math.floor(Math.random()*10)+1;
+                console.log(compNumTwo);
+                computerGuess.push(compNumTwo);
+        compNumThree = Math.floor(Math.random()*10)+1;
+                console.log(compNumThree); 
+                computerGuess.push(compNumThree);
+
+            for (var i = 0; i < 3; i++){
+                if (yourGuess[i] == computerGuess[0] && verfiyOne == false) {
+                    verfiyOne = true;
+                    numCorrect +=1;
+                    continue;
+                }
+                if (yourGuess[i] == computerGuess[1] && verfiyTwo == false) {
+                    verfiyTwo = true;
+                    numCorrect +=1;
+                    continue;
+                }
+                if (yourGuess[i] == computerGuess[2] && verfiyThree == false) {
+                    verfiyThree = true;
+                    numCorrect +=1;
+                    continue;
+                }
+            }
+
+            if (numCorrect == 1) {
+                cashLog = 100;
+                message += "You got 1 right. Your prize is $" + cashLog;
+            } else if (numCorrect == 2) {
+                cashLog = 200;
+                message += "You got 2 right. Your prize is $" + cashLog;
+            } else if (numCorrect == 3) {
+                cashLog = 500;
+                message += "You got 3 right. Your prize is $" + cashLog;
+            } else {
+                message += "You didnt get any right";
+            }
+
+        tryAgain = prompt("The computers numbers are: " + compNumOne +" "+ compNumTwo + " " + compNumThree + "\nYour guesses were: " + guessOne + " " +
+         guessTwo + " " + guessThree + "\n" + message + "\n\n" + "Would you like to try again? Y/N".toLowerCase());
+
+         message = "";
+    }while(tryAgain == "y");
+
+</script>

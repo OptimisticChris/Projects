@@ -1,0 +1,33 @@
+<script>
+    var num1 = parseInt(prompt("Enter a number: "));
+    var num2 = parseInt(prompt("Enter a second number: "));
+    var math = prompt("Would you like to add, subtract, multiply, divide?").toLowerCase().trim();
+
+    let multiply = num1 * num2;
+    let subtract = num1 - num2;
+    let addition = num1 + num2;
+    let division = num1 / num2;
+
+    if(math == "subtract"){
+        alert("The subtraction of both numbers is: " + subtract);
+    } else if(math == "add") {
+        alert("The sum of both numbers is: " + addition);
+    } else if(math == "multiply"){
+        alert("The multiplication of both numbers is: " + multiply);
+    } else {
+        handleDivide();
+    }
+
+    function handleDivide(){
+        if (math == "divide"){
+            alert("The Division of both numbers is: " + division)
+        }
+    }
+
+    
+
+    function handleMath(){
+
+    }
+    
+</script>
