@@ -1,0 +1,803 @@
+<script>
+
+const lootTable = [
+    // 🔧 Utility / Common Items
+    { name: "Torch", desc: "A dimly lit torch.", rarity: 10 },
+    { name: "Rusty Key", desc: "Old and worn, might open something.", rarity: 5 },
+    { name: "Lantern", desc: "Sturdy light source.", rarity: 6 },
+    { name: "Silver Coin", desc: "Shiny currency.", rarity: 8 },
+    { name: "Compass", desc: "Always points north.", rarity: 4 },
+    { name: "Rope", desc: "Could be useful for climbing.", rarity: 7 },
+    { name: "Flint & Steel", desc: "Good for making fire.", rarity: 6 },
+    { name: "Map Fragment", desc: "A torn piece of a larger map.", rarity: 5 },
+    { name: "Lockpick", desc: "Can open simple locks.", rarity: 4 },
+    { name: "Empty Bottle", desc: "Could hold liquids.", rarity: 6 },
+
+    // 🍎 Food & Drink (common, stackable)
+    { name: "Chocolate", desc: "OOooOO Piece of candy!", effects: { hp: 5, stamina: 5 }, stackable: true, rarity: 15 },
+    { name: "Health Potion", desc: "A thick red liquid that heals you", effects: { hp: 20, stamina: 0 }, stackable: true, rarity: 15 },
+    { name: "Apple", desc: "A crisp red apple.", effects: { hp: 6, stamina: 6 }, stackable: true, rarity: 15 },
+    { name: "Sandwich", desc: "A delicious snack.", effects: { hp: 8, stamina: 8 }, stackable: true, rarity: 12 },
+    { name: "Bottle of Water", desc: "Fresh and clean.", effects: { hp: 5, stamina: 7 }, stackable: true, rarity: 12 },
+    { name: "Bread", desc: "Freshly baked.", effects: { hp: 7, stamina: 6 }, stackable: true, rarity: 12 },
+    { name: "Cheese", desc: "Aged and aromatic.", effects: { hp: 7, stamina: 7 }, stackable: true, rarity: 10 },
+    { name: "Wine", desc: "A bottle of red.", effects: { hp: 6, stamina: 8 }, stackable: true, rarity: 8 },
+    { name: "Carrot", desc: "Crunchy and healthy.", effects: { hp: 5, stamina: 5 }, stackable: true, rarity: 14 },
+    { name: "Beef Jerky", desc: "Salty dried meat.", effects: { hp: 9, stamina: 9 }, stackable: true, rarity: 10 },
+    { name: "Mushroom Stew", desc: "Warm and filling.", effects: { hp: 10, stamina: 10 }, stackable: true, rarity: 8 },
+    { name: "Herbal Tea", desc: "Restores energy slowly.", effects: { hp: 4, stamina: 12 }, stackable: true, rarity: 9 },
+
+    // ⚔️ Weapons (uncommon/rare, unique)
+    { name: "Fists", weapon: true, damage: 5, rarity: 1 },
+    { name: "Dagger", weapon: true, damage: 7, rarity: 6 },
+    { name: "Iron Sword", weapon: true, damage: 12, rarity: 4 },
+    { name: "Wooden Shield", weapon: true, damage: 10, rarity: 5 },
+    { name: "Crossbow", weapon: true, damage: 16, rarity: 3 },
+    { name: "Crystal Dagger", weapon: true, damage: 18, rarity: 2 },
+    { name: "Warhammer", weapon: true, damage: 20, rarity: 2 },
+    { name: "Battle Axe", weapon: true, damage: 15, rarity: 3 },
+    { name: "Longbow", weapon: true, damage: 14, rarity: 4 },
+    { name: "Steel Spear", weapon: true, damage: 13, rarity: 4 },
+    { name: "Enchanted Staff", weapon: true, damage: 17, rarity: 2 },
+
+    // 🔮 Rare Artifacts (very rare, unique)
+    { name: "Crystal Pendant", desc: "Glows faintly.", effects: { affinity: +5 }, rarity: 2 },
+    { name: "Magic Ring", desc: "Enhances the wearer.", effects: { affinity: +8 }, rarity: 2 },
+    { name: "Dragon Scale", desc: "Radiates heat.", effects: { affinity: +10 }, rarity: 1 },
+    { name: "Phoenix Feather", desc: "Said to contain rebirth magic.", effects: { affinity: +12 }, rarity: 1 },
+    { name: "Crystal Ball", desc: "Shows visions.", effects: { affinity: -8 }, rarity: 1 },
+    { name: "Obsidian Shard", desc: "Dark and sharp.", effects: { affinity: -5 }, rarity: 2 },
+    { name: "Spirit Stone", desc: "Whispers faint voices.", effects: { affinity: -10 }, rarity: 1 },
+    { name: "Mystic Tome", desc: "Overflowing with knowledge.", effects: { affinity: +15 }, rarity: 1 },
+    { name: "Lucky Coin", desc: "Always lands heads.", effects: { affinity: +3 }, rarity: 3 },
+    { name: "Amulet of Shadows", desc: "Shrouds the bearer in darkness.", effects: { affinity: -12 }, rarity: 1 },
+    { name: "Celestial Orb", desc: "Glows with starlight.", effects: { affinity: +20 }, rarity: 1 },
+];
+
+
+
+function weightedRandomPick(table) {
+    const totalWeight = table.reduce((sum, item) => sum + (item.rarity || 1), 0);
+    let roll = Math.random() * totalWeight;
+
+    for (let item of table) {
+        roll -= item.rarity || 1;
+        if (roll <= 0) {
+            return item;
+        }
+    }
+    return table[table.length - 1]; // fallback
+}
+
+// function findSingleLoot() {
+//     const shuffled = [...lootTable].sort(() => 0.5 - Math.random());
+//     const item = shuffled[0]; // just one
+//     addToInventory(item.name, item.desc || "No description", item.effects || {}, item.stackable || false);
+//     alert(`You found: ${item.name} - ${item.desc || "No description"}`);
+// }
+
+
+// function findLoot() {
+//     const loot = weightedRandomPick(lootTable);
+
+//     // Weapons auto-equip
+//     if (loot.weapon) {
+//         equipWeapon(loot.name, loot.damage);
+//         alert(`You found a ${loot.name}! (Damage: ${loot.damage})`);
+//         return loot;
+//     }
+
+//     // Everything else
+//     addToInventory(loot.name, loot.desc, loot.effects || {}, loot.stackable || false);
+//     return loot;
+// }
+
+
+function findSingleLoot(lootId = null) {
+    if (lootId && lootStatus[lootId]) {
+        alert("There's nothing left to find here.");
+        return;
+    }
+
+    const shuffled = [...lootTable].sort(() => 0.5 - Math.random());
+    const item = shuffled[0]; 
+    addToInventory(item.name, item.desc || "No description", item.effects || {}, item.stackable || false);
+    alert(`You found: ${item.name} - ${item.desc || "No description"}`);
+
+    if (lootId) lootStatus[lootId] = true;
+}
+
+
+function findLoot(chestId = null) {
+    if (chestId && chestStatus[chestId]) {
+        alert("The chest is empty. You've already looted it.");
+        return;
+    }
+
+    const loot = weightedRandomPick(lootTable);
+
+    if (loot.weapon) {
+        equipWeapon(loot.name, loot.damage);
+        alert(`You found a ${loot.name}! (Damage: ${loot.damage})`);
+    } else {
+        addToInventory(loot.name, loot.desc, loot.effects || {}, loot.stackable || false);
+    }
+
+    if (chestId) chestStatus[chestId] = true;
+    return loot;
+}
+
+
+function applyLoot(entry) {
+    if (entry.type === "weapon") {
+        equipWeapon(entry.name, entry.effects.damage);
+    } else {
+        addToInventory(entry.name, entry.description);
+    }
+}
+
+function addToInventory(itemName, description, effects = {}, stackable = false) {
+    let existingItem = player.inventory.find(item => item.name === itemName);
+
+    if (existingItem) {
+        if (stackable) {
+            // ✅ Increment quantity if stackable
+            existingItem.quantity = (existingItem.quantity || 1) + 1;
+            alert(`You picked up another ${itemName}. You now have x${existingItem.quantity}.`);
+
+            // Apply effects each time food/drink is collected
+            if (effects.hp) player.hp += effects.hp;
+            if (effects.stamina) player.stamina += effects.stamina;
+            enforceLimits();
+        } else {
+            // ❌ No duplicate if item is unique
+            alert(`You already have a ${itemName}.`);
+        }
+    } else {
+        // ✅ Add brand new item
+        let newItem = { name: itemName, description: description, ...effects };
+        if (stackable) newItem.quantity = 1;
+
+        player.inventory.push(newItem);
+        alert(`You have obtained: ${itemName}\n${description}`);
+
+        // Apply effects on first pickup
+        if (effects.hp) player.hp += effects.hp;
+        if (effects.stamina) player.stamina += effects.stamina;
+        if (effects.affinity) player.affinity += effects.affinity;
+        enforceLimits();
+    }
+}
+
+function equipWeapon(weaponName, damage) {
+    player.weapon = { name: weaponName, damage: damage };
+    alert(`You have equipped: ${weaponName}! It deals ${damage} damage.`);
+}
+
+let historyStack = [];
+
+function goBack() {
+    historyStack.pop(); // remove current scene
+    const previous = historyStack[historyStack.length - 1]; // grab the one before
+    if (previous) {
+        previous(); // replay that scene
+    } else {
+        alert("There's nowhere to go back to!");
+    }
+}
+
+
+function getValidInput(question, validOptions) {
+    let answer;
+    do {
+        answer = prompt(question + "\n\nfor guide, type: guide").toLowerCase().trim();
+
+        if (answer === "guide") {
+            alert(getGuide());
+
+        } else if (answer === "inventory") {
+            let weaponStatus = player.weapon && player.weapon.name
+                ? `${player.weapon.name} (Damage: ${player.weapon.damage})` 
+                : "None";
+
+            if (player.inventory.length === 0) {
+                alert(`You have no items yet\nWeapon: ${weaponStatus}`);
+            } else {
+                let itemsList = player.inventory
+                    .map(item => `${item.name} - ${item.description}`)
+                    .join("\n"); 
+                alert(`Your Inventory:\n${itemsList}\n\nWeapon: ${weaponStatus}`);
+            }
+
+        } else if (answer.startsWith("use ")) {
+            let itemName = answer.substring(4); // everything after "use "
+            useItem(itemName);
+
+        } else if (answer === "quit") {
+            break;
+
+        } else if (answer === "rest") {
+            if (player.stamina >= 100) {
+                alert("You are well rested");
+            } else {
+                alert("You took a short rest");
+                player.stamina += 2;
+                enforceLimits();
+                return getValidInput(question, validOptions);
+            }
+        } else if (answer === "back"){
+            goBack();
+            return;
+        }
+
+        // Optional inline stat check reminder
+        function checkStats() {
+            if (player.stamina <= 50) {
+                alert("You are tired and need to rest");
+            }
+            if (player.hp <= 50) {
+                alert("You don’t feel so good, there might be some blood on ya");
+            }
+            if (player.hunger <= 50) {
+                alert("You are hungry, eat or drink something soon");
+            }
+        }
+
+    } while (!validOptions.includes(answer)); //this is a current problem. <-------- <------ <------ <------ MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+    return answer;
+}
+
+
+var player = {
+    name: prompt("Enter your name: ").trim(),
+    hp: 100,
+    stamina: 100,
+    affinity: 100,
+    hunger: 100,
+    weapon: { name: "Fists", damage: 5 },
+    inventory: [],
+    gold: 100
+};
+let lootStatus = {};
+
+alert(`Welcome ${player.name} to 'Choices Adventure Game'! Make choices, seek out new paths!`); 
+handleStart();
+
+function getAffinityStatus() {
+    return player.affinity >= 51 ? "Good" : "Evil";
+}
+//**player stats
+
+function getGuide() {
+    let inventoryItems = player.inventory.map(item => item.name).join(", ") || "None";
+    let weaponStatus = player.weapon ? `${player.weapon.name} (Damage: ${player.weapon.damage})` : "None";
+    
+    return `Player Stats:
+    Name: ${player.name}
+    HP: ${player.hp}
+    Stamina: ${player.stamina}
+    Hunger: ${player.hunger}
+    Weapon: ${weaponStatus}
+    Affinity: ${getAffinityStatus()}
+    Inventory: ${inventoryItems}
+    Gold: ${player.gold}
+    
+    type: "inventory" to see inventory.
+    type: "quit" to end game.`;
+
+   
+}
+
+
+// function weightedRandomPick(table) {
+//     const totalWeight = table.reduce((sum, item) => sum + (item.rarity || 1), 0);
+//     let roll = Math.random() * totalWeight;
+
+//     for (let item of table) {
+//         roll -= item.rarity || 1;
+//         if (roll <= 0) {
+//             return item;
+//         }
+//     }
+//     return table[table.length - 1]; // fallback
+// }
+
+// function findLoot() {
+//     const loot = weightedRandomPick(lootTable);
+
+//     // Weapons auto-equip
+//     if (loot.weapon) {
+//         equipWeapon(loot.name, loot.damage);
+//         alert(`You found a ${loot.name}! (Damage: ${loot.damage})`);
+//         return loot;
+//     }
+
+//     // Everything else
+//     addToInventory(loot.name, loot.desc, loot.effects || {}, loot.stackable || false);
+//     return loot;
+// }
+
+// function applyLoot(entry) {
+//     if (entry.type === "weapon") {
+//         equipWeapon(entry.name, entry.effects.damage);
+//     } else {
+//         addToInventory(entry.name, entry.description);
+//     }
+// }
+
+// function addToInventory(itemName, description, effects = {}, stackable = false) {
+//     let existingItem = player.inventory.find(item => item.name === itemName);
+
+//     if (existingItem) {
+//         if (stackable) {
+//             // ✅ Increment quantity if stackable
+//             existingItem.quantity = (existingItem.quantity || 1) + 1;
+//             alert(`You picked up another ${itemName}. You now have x${existingItem.quantity}.`);
+
+//             // Apply effects each time food/drink is collected
+//             if (effects.hp) player.hp += effects.hp;
+//             if (effects.stamina) player.stamina += effects.stamina;
+//             enforceLimits();
+//         } else {
+//             // ❌ No duplicate if item is unique
+//             alert(`You already have a ${itemName}.`);
+//         }
+//     } else {
+//         // ✅ Add brand new item
+//         let newItem = { name: itemName, description: description, ...effects };
+//         if (stackable) newItem.quantity = 1;
+
+//         player.inventory.push(newItem);
+//         alert(`You have obtained: ${itemName}\n${description}`);
+
+//         // Apply effects on first pickup
+//         if (effects.hp) player.hp += effects.hp;
+//         if (effects.stamina) player.stamina += effects.stamina;
+//         if (effects.affinity) player.affinity += effects.affinity;
+//         enforceLimits();
+//     }
+// }
+
+// function equipWeapon(weaponName, damage) {
+//     player.weapon = { name: weaponName, damage: damage };
+//     alert(`You have equipped: ${weaponName}! It deals ${damage} damage.`);
+// }
+
+//** equipWeapon("These Hands", 5);
+//** equipWeapon("Iron Sword", 15);
+
+// addToInventory("Chocolate", "OOooOO Piece of candy!")
+// addToInventory("Torch", "A dimly lit torch that can help you navigate dark areas.");
+
+function useItem(itemName) {
+    let index = player.inventory.findIndex(i => i.name.toLowerCase() === itemName.toLowerCase());
+    if (index === -1) {
+        alert("You don't have that item!");
+        return;
+    }
+
+    let item = player.inventory[index];
+
+    // ✅ Apply effects
+    if (item.effects) {
+        if (item.effects.hp) player.hp += item.effects.hp;
+        if (item.effects.stamina) player.stamina += item.effects.stamina;
+        if (item.effects.hunger) player.hunger += item.effects.hunger;
+        if (item.effects.affinity) player.affinity += item.effects.affinity;
+        if (item.effects.weapon) {
+            player.weapon = item.effects.weapon;
+            alert(`You equip the ${item.effects.weapon.name}!`);
+        }
+    }
+
+    enforceLimits();
+    checkDeath();
+
+    // ✅ Remove consumables
+    if (item.stackable) {
+        player.inventory.splice(index, 1);
+        alert(`${item.name} has been used.`);
+    }
+}
+
+
+function createEnemy(name, hp, attackDamage) {
+    return { name, hp, attackDamage };
+}
+
+
+function combat(enemy) {
+     alert(`A wild ${enemy.name} appears! Prepare for battle!`);
+
+   while (player.hp > 0 && enemy.hp > 0) {
+         let action = getValidInput(
+             `The ${enemy.name} stands before you!\nYour HP: ${player.hp} | Stamina: ${player.stamina}\n${enemy.name}'s HP: ${enemy.hp}\n\nChoose an action:\n'attack' - Use your weapon\n'dodge' - Attempt to avoid damage\n'use' - Use an item`,
+             ["attack", "dodge", "use"]
+         );
+
+         if (action === "attack") {
+             if (player.weapon) {
+                 let damage = player.weapon.damage;
+                 enemy.hp -= damage;
+                 player.stamina -= 10;
+                 alert(`You strike the ${enemy.name} with your ${player.weapon.name}, dealing ${damage} damage!`);
+             } else {
+                 enemy.hp -= 5;
+                 player.stamina -= 5;
+                 alert(`You punch the ${enemy.name}, dealing 5 damage!`);
+             }
+         } else if (action === "dodge") {
+             if (Math.random() > 0.5) {
+                 alert(`You successfully dodge the ${enemy.name}'s attack!`);
+                 continue; // Skip enemy attack
+            } else {
+                 alert(`You fail to dodge the attack!`);     }
+         } else if (action === "use") {
+            if (player.inventory.length > 0) {
+                 let itemUsed = useInventoryItem();
+                 if (itemUsed) continue; // Skip enemy attack if an item was used
+             } else {
+                 alert("You have no items to use!");
+             }
+         }
+
+         if (enemy.hp > 0) {
+             player.hp -= enemy.attackDamage;
+             alert(`The ${enemy.name} attacks you, dealing ${enemy.attackDamage} damage!`);
+         }
+
+         enforceLimits();
+         checkDeath();
+     }
+
+    if (player.hp > 0) {
+        alert(`You defeated the ${enemy.name}!`);
+        return true;
+    } else {
+        alert(`You were slain by the ${enemy.name}... Game Over.`);
+        resetGame();
+        return false;
+    }
+}
+
+  //example combat// 
+function handleFightGoblin() {
+    let goblin = createEnemy("Goblin", 30, 10);
+    combat(goblin);
+}
+function handleDarkKnight() {
+    let darkKnight = createEnemy("Dark Knight", 50, 15);
+    combat(darkKnight);
+}
+function handleFightDog(){
+    let dog = createEnemy("Dog", 10, 5)
+    combat(dog);
+}
+function handleFightWolf(){
+    let wolf = createEnemy("Wolf", 15, 8);
+    combat(wolf);
+}
+function handleFightWildman(){
+    let wildman = createEnemy("Wild Man", 20, 1);
+    combat(wildman);
+}
+function handleFightSkeleton(){
+    let skeleton = createEnemy("Skeleton", 5, 1);
+    combat(skeleton);
+}
+function handleFightMimic(){
+    let mimic = createEnemy("Mimic", 15, 10);
+    combat(mimic);
+}
+function handleFightOgreBrute(){
+    let ogrebrtue = createEnemy("Ogre Brute", 45, 20);
+    combat(ogrebrute);
+}
+
+//**death check 
+function checkDeath() {
+    if (player.hp <= 0) {
+        alert("You have died from your injuries. Game Over.");
+        resetGame();
+    } else if (player.stamina <= 0) {
+        alert("You have collapsed from exhaustion. Game Over.");
+        resetGame();
+    } else if (player.affinity <= 0) {
+        alert("A pack of vicious rabbits senses your evil nature and attacks you! Game Over.");
+        resetGame();
+    } else if (player.hunger <= 0) {
+        alert("You have starved to death! Game over!");
+        resetGame();
+    }
+}
+
+function checkRanDeath(){
+  const messages = [
+  "You trip over your own feet",
+  "A hand reaches through the door and squeezes you",
+  "The door swings open and hits you",
+  "You take a drink of water and start choking",
+  "A flock of rabbid squirrles decends apon you.",
+  "You are beat to death by the door",
+  "You die from an allergic reaction.",
+  "Trogdor the buninator swoops down, burning the village and you. TRRROOGGGDDOOORR THE BURNINATOR!!!",
+  "A WILD SALAD FINGERS APEARS WITH RUSTY SPOONS!",
+  "Wow",
+  "Ah yes, the legendary hero of ‘Nope’ strikes again!",
+  "Remember: retreat is just a tactical nap.",
+  "Bold move. Most heroes wait until they're inside to give up.",
+  "Turns out bravery is optional. So is progress.",
+]; 
+
+const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+  if (player.hp <= 0 ){
+    alert(randomMessage);
+    resetGame();
+  }
+}
+
+//**reset game on death
+function resetGame() {
+    alert("Restarting game...");
+    player.hp = 100;
+    player.stamina = 100;
+    player.affinity = 100;
+    player.hunger = 100;
+    player.gold = 100;
+    player.inventory = [];
+    
+    handleStart(); // Restart the game at the beginning
+}
+
+function enforceLimits() {
+    player.hp = Math.min(player.hp, 100);
+    player.stamina = Math.min(player.stamina, 100);
+    player.affinity = Math.min(player.affinity, 100);
+    player.hunger = Math.min(player.hunger, 100);
+}
+
+function getMerchantItems(count = 3) {
+    const pickedItems = [];
+
+    while (pickedItems.length < count) {
+        const item = weightedRandomPick(lootTable);
+
+        // Ensure no duplicates
+        if (!pickedItems.find(i => i.name === item.name)) {
+            pickedItems.push(item);
+        }
+    }
+
+    return pickedItems;
+}
+
+// const merchantItems = getMerchantItems(3);
+
+//         const itemListText = merchantItems.map((item, index) =>
+//             `${index + 1}. ${item.name} - ${item.desc || "No description"}`
+//         ).join("\n");
+
+//         let choice = getValidInput(
+//             `I have a few things in my shop, let's see here:\n\n${itemListText}\n\nWhich item would you like to buy? (1, 2, or 3)`,
+//             ["1", "2", "3"]
+//         );
+
+//         let selectedItem = merchantItems[parseInt(choice) - 1];
+
+//         if (selectedItem.weapon) {
+//             equipWeapon(selectedItem.name, selectedItem.damage);
+//         } else {
+//             addToInventory(
+//                 selectedItem.name,
+//                 selectedItem.desc || "No description",
+//                 selectedItem.effects || {},
+//                 selectedItem.stackable || false
+//             );
+//         }
+
+//         alert(`You bought: ${selectedItem.name}`);
+//         handleVillage(); // continue game
+
+function handleDoor(){
+    historyStack.push(handleDoor);
+    let choice = getValidInput("A door appears infront of you, do you 'enter' or 'leave'",
+    ["enter", "leave"] 
+    ); 
+    if (choice === "enter"){
+        handleStart();
+    }else if(choice === "leave"){
+      /*randomMessage;*/
+      player.hp-=101;
+      enforceLimits();
+      checkRanDeath();
+    }
+}
+
+function handleStart(){
+    historyStack.push(handleStart);
+    let choice = getValidInput("You enter into a dimly lit dungeon, think bricks line the walls and the ceiling, while a cobble stone path leads your way, the path comes to a T interestion, you can go left or right.", ["left", "right"]);
+    if(choice === "left"){
+        handleLeft1_0();
+    } else if (choice === "right"){
+        handleRight1_0();
+    }
+}
+ 
+
+function handleLeft1_0(){
+    historyStack.push(handleLeft1_0);
+
+    let choice = getValidInput("There is a hall way with a left turn ahead, do you go left or back?",["left","back"]);
+    if (choice ==="left"){
+        handleLeft1_1();
+    } else {
+        goBack();
+    }
+}
+
+function handleRight1_0(){
+    historyStack.push(handleRight1_0);
+
+    let choice = getValidInput("Turning right you see another right turn up ahead, do you go right or back?",["right","back"]);
+    if(choice==="right"){
+        handleRight1_1();
+    } else {
+        goBack();
+    }
+}
+
+
+function handleLeft1_1(){
+    historyStack.push(handleLeft1_1);
+
+    let choice = getValidInput("Turning the corner to the left you see light coming through a doorway on the right side, and a long hallway infront of you, do you go 'inside' the room, or 'forward' down the hallway",["inside","forward"]);
+    if(choice === "inside"){
+        let left1_1Room = getValidInput("You enter a small room, theres a chest in the center, do you 'search or 'leave'",["search","leave"]);
+        if(left1_1Room === "search"){
+            findSingleLoot("left1_1Chest");
+            goBack();
+        } else {
+            goBack();
+        }
+    } else {
+        handleLeft1_2();
+    }
+}
+
+function handleRight1_1(){
+    historyStack.push(handleRight1_1);
+
+    let choice = getValidInput("Turning the right corner you come to a cross road, you can make out what looks like a wall to the left at the end of the tunnel."+
+    "The left curves left, and there is a long halway infrot of you. 'straight', 'right', 'left'",["straight","right","left"]);
+    if(choice === "straight"){
+        handleRight1_2_1();
+    } else if(choice==="left"){
+        handleRight1_2_2();
+    } else if(choice==="right"){
+        handleRight1_2_pitfall();
+    }
+}
+
+function handleLeft1_2() {
+    historyStack.push(handleLeft1_2);
+    let choice = getValidInput("The hallway continues upward. Ahead you see another doorway to the left, and the hall continues forward. Do you go 'left' into the room or 'forward'?", ["left", "forward", "back"]);
+    
+    if (choice === "left") {
+        handleLeftRoom1();
+    } else if (choice === "forward") {
+        handleLeft1_3();
+    } else {
+        goBack();
+    }
+}
+
+function handleLeftRoom1() {
+    historyStack.push(handleLeftRoom1);
+    let choice = getValidInput("You enter a small chamber. There may be something here. Do you 'search' or 'leave'?", ["search", "leave", "back"]);
+
+    if (choice === "search") {
+        findSingleLoot("leftRoom1Chest");
+        goBack();
+    } else {
+        goBack();
+    }
+}
+
+function handleLeft1_3() {
+    historyStack.push(handleLeft1_3);
+    let choice = getValidInput("The path bends and you see another room entrance to the left, and the corridor keeps going upward. Do you go 'left' or 'forward'?", ["left", "forward", "back"]);
+
+    if (choice === "left") {
+        handleLeftRoom2();
+    } else if (choice === "forward") {
+        handleLeft1_4();
+    } else {
+        goBack();
+    }
+}
+
+function handleLeftRoom2() {
+    historyStack.push(handleLeftRoom2);
+    let choice = getValidInput("This chamber looks abandoned, though danger could lurk. Do you 'search' or 'leave'?", ["search", "leave", "back"]);
+    
+    if (choice === "search") {
+        handleFightGoblin(); // example combat
+        goBack();
+    } else {
+        goBack();
+    }
+}
+
+function handleLeft1_4() {
+    historyStack.push(handleLeft1_4);
+    let choice = getValidInput("You reach the top of the corridor. Ahead lies a narrow passage leading to a dead end. Do you 'forward' or go 'back'?", ["forward", "back"]);
+
+    if (choice === "forward") {
+        alert("It's a dead end. You'll have to turn back.");
+        goBack();
+    } else {
+        goBack();
+    }
+}
+
+function handleRight1_2_1() {
+    historyStack.push(handleRight1_2_1);
+    let choice = getValidInput("The corridor stretches forward. You see a large chamber far ahead. Do you go 'forward' or 'back'?", ["forward", "back"]);
+
+    if (choice === "forward") {
+        handleRightBigRoom();
+    } else {
+        goBack();
+    }
+}
+
+function handleRight1_2_2() {
+    historyStack.push(handleRight1_2_2);
+    let choice = getValidInput("The passage curves left and leads to a small side room. Do you go 'inside' or 'back'?", ["inside", "back"]);
+
+    if (choice === "inside") {
+        handleRightRoom1();
+    } else {
+        goBack();
+    }
+}
+
+function handleRightRoom1() {
+    historyStack.push(handleRightRoom1);
+    let choice = getValidInput("The small room smells damp. Do you 'search' or 'leave'?", ["search", "leave", "back"]);
+
+    if (choice === "search") {
+        findSingleLoot("rightRoom1Chest");
+        goBack();
+    } else {
+        goBack();
+    }
+}
+
+function handleRight1_2_pitfall() {
+    historyStack.push(handleRight1_2_pitfall);
+    alert("You fall into a pit trap! You take 20 damage.");
+    player.hp -= 20;
+    enforceLimits();
+    checkDeath();
+    handleLowStart();
+}
+
+function handleRightBigRoom() {
+    historyStack.push(handleRightBigRoom);
+    let choice = getValidInput("You enter a vast chamber with broken pillars. Shadows move in the distance. Do you 'search', 'fight', or 'back'?", ["search", "fight", "back"]);
+
+    if (choice === "search") {
+        findLoot("rightBigRoomLoot"+(4));
+        goBack();
+    } else if (choice === "fight") {
+        handleDarkKnight();
+        goBack();
+    } else {
+        goBack();
+    }
+}
+
+
+</script>
